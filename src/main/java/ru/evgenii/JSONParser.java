@@ -1,7 +1,6 @@
 package ru.evgenii;
 
 import com.google.gson.internal.LazilyParsedNumber;
-import ru.evgenii.separator.EnumSeparator;
 
 import java.io.IOException;
 import java.io.Reader;
