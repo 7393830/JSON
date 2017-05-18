@@ -5,41 +5,56 @@ import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Character.isDigit;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
-/**
- * Created by e.kostyukovskiy on 24.04.2017.
- */
-public class JSONParser {
+class JSONParser {
+    private static final int END_READ_STREAM = -1;
+    private static final int CHAR_MINUS = '-';
+    private static final int DOUBLE_QUOTE = '"';
+    private static final int FIRST_CHAR_TRUE = 't';
+    private static final int FIRST_CHAR_FALSE = 'f';
+    private static final int FIRST_CHAR_NULL = 'n';
+    private static final int OPENING_SQUARE_BRACKET = '[';
+    private static final int CLOSING_SQUARE_BRACKET = ']';
+    private static final int OPENING_CURLY_BRACKET = '{';
+    private static final int CLOSING_CURLY_BRACKET = '}';
+    private static final int CHAR_COMMA = ',';
+    private static final int CHAR_COLON = ':';
+    private static final int CHAR_DOT = '.';
+    private static final int CHAR_PLUS = '+';
+    private static final int CHAR_E_LOW = 'e';
+    private static final int CHAR_E_UP = 'E';
+    private static final int CHAR_BACK_SLASH = '\\';
 
-    private Reader stringReader = null;
 
-    public JSONParser(Reader stringReader) {
-        this.stringReader = stringReader;
+    private Reader reader = null;
+
+    JSONParser(Reader reader) {
+        this.reader = reader;
     }
 
-    public JSONElement jsonFactory() throws IOException {
+    JSONElement jsonFactory() throws IOException {
         int c;
-        while ((c = stringReader.read()) != -1) {
+        while ((c = reader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (isDigit((char) c) || c == 45) //-
-                {
+                if (isDigit(c) || c == CHAR_MINUS) {
                     return numberSeparator(c);
                 } else {
                     switch (c) {
-                        case 34://"
+                        case DOUBLE_QUOTE:
                             return stringSeparator(c);
-                        case 116: //t
-                        case 102: //f
+                        case FIRST_CHAR_TRUE:
+                        case FIRST_CHAR_FALSE:
                             return booleanSeparator(c);
-                        case 110: //n
+                        case FIRST_CHAR_NULL:
                             return nullSeparator(c);
-                        case 91: //[
-                            return arraySeparator(c);
-                        case 123: //{
-                            return objectSeparator(c);
+                        case OPENING_SQUARE_BRACKET:
+                            return arraySeparator();
+                        case OPENING_CURLY_BRACKET:
+                            return objectSeparator();
                         default:
                             throw new IllegalArgumentException("error! JSONParser.jsonFactory");
                     }
@@ -52,15 +67,15 @@ public class JSONParser {
     private JSONElement numberSeparator(int indexCharInput) throws IOException {
         StringBuilder toValues = new StringBuilder();
         toValues.append((char) indexCharInput);
-        stringReader.mark(1);
+        reader.mark(1);
         int c;
-        while ((c = stringReader.read()) != -1) {
-            if (isDigit((char) c) || c == 45 || c == 46 || c == 43 || c == 69 || c == 101) //- . + e E
+        while ((c = reader.read()) != END_READ_STREAM) {
+            if (isDigit((char) c) || c == CHAR_MINUS || c == CHAR_DOT || c == CHAR_PLUS || c == CHAR_E_LOW || c == CHAR_E_UP)
             {
                 toValues.append((char) c);
-                stringReader.mark(1);
+                reader.mark(1);
             } else {
-                stringReader.reset();
+                reader.reset();
                 return numberCheck(toValues);
             }
         }
@@ -69,85 +84,47 @@ public class JSONParser {
 
     private JSONElement numberCheck(StringBuilder toValues) {
         if (isNumber(toValues.toString())) {
-
-            /*Number ff = new Number() {
-                @Override
-                public int intValue() {
-                    return  toValues.toString();
-                }
-
-                @Override
-                public long longValue() {
-                    return 0;
-                }
-
-                @Override
-                public float floatValue() {
-                    return 0;
-                }
-
-                @Override
-                public double doubleValue() {
-                    return 0;
-                }
-            }*/
             return new JSONPrimitive(getAsNumber(toValues.toString()));
-            //Values.add(new Pair(Number.class, toValues.toString()));
-            //toValues.setLength(0);
         } else {
             throw new IllegalArgumentException("error! JSONParser.numberCheck");
         }
     }
 
     private Number getAsNumber(String value) {
-        return new LazilyParsedNumber((String) value);
+        return new LazilyParsedNumber(value);
     }
 
     private JSONElement stringSeparator(int indexCharInput) throws IOException {
         StringBuilder toValues = new StringBuilder();
         boolean tmpIsSlash = false;
         if (indexCharInput == -1) {
-            indexCharInput = checkString();
+            checkString();
         }
         int c;
-        while ((c = stringReader.read()) != -1) {
-            /*if (c == 92)//\
+        while ((c = reader.read()) != END_READ_STREAM) {
+            if (c == DOUBLE_QUOTE)
             {
-                toValues.append((char) c);
-                tmpIsSlash = true;
-                continue;
-            }*/
-            if (c == 34)//"
-            {
-                if(tmpIsSlash)
-                {
-                    toValues.deleteCharAt(toValues.length()-1);
+                if (tmpIsSlash) {
+                    toValues.deleteCharAt(toValues.length() - 1);
                     toValues.append((char) c);
-                    tmpIsSlash = !tmpIsSlash;
+                    tmpIsSlash = false;
                     continue;
                 }
                 return new JSONPrimitive(toValues.toString());
             } else {
                 toValues.append((char) c);
-                if (c == 92)//\
-                {
-                    tmpIsSlash = true;
-                }
-                else {
-                    tmpIsSlash = false;
-                }
+                tmpIsSlash = c == CHAR_BACK_SLASH;
             }
         }
         throw new IllegalArgumentException("error! JSONParser.stringSeparator");
     }
 
-    private int checkString() throws IOException {
+    private void checkString() throws IOException {
         int c;
-        while ((c = stringReader.read()) != -1) {
+        while ((c = reader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (c == 34)//"
-                {
-                    return c;
+                if (c == DOUBLE_QUOTE) {
+                    return;
                 } else {
                     throw new IllegalArgumentException("error! JSONParser.checkString");
                 }
@@ -157,70 +134,49 @@ public class JSONParser {
     }
 
     private JSONElement booleanSeparator(int indexCharInput) throws IOException {
-        ArrayList<Character> postfixValue = new ArrayList<Character>();
-        if (indexCharInput == 't') {
-            postfixValue.add('r');
-            postfixValue.add('u');
-            postfixValue.add('e');
-        } else if (indexCharInput == 'f') {
-            postfixValue.add('a');
-            postfixValue.add('l');
-            postfixValue.add('s');
-            postfixValue.add('e');
-        } else throw new IOException("error! JSONParser.booleanSeparator");
-        int initSize = postfixValue.size();
+        return new JSONPrimitive(getBooleanOrNullByReader(indexCharInput));
+    }
+
+    private Boolean getBooleanOrNullByReader(int c) throws IOException {
+        if (c == FIRST_CHAR_TRUE && isCanReadValue("true")) {
+            return true;
+        } else if (c == FIRST_CHAR_FALSE && isCanReadValue("false")) {
+            return false;
+        } else if (c == FIRST_CHAR_NULL && isCanReadValue("null"))
+            return null;
+        throw new IllegalArgumentException();
+    }
+
+    private boolean isCanReadValue(String expr) throws IOException {
+        int expectedLength = expr.length();
+        int index = 1;
         int c;
-        while ((c = stringReader.read()) != -1) {
-            try {
-                if ((char) c == postfixValue.get(0)) {
-                    postfixValue.remove(0);
-                    if (postfixValue.size() == 0) {
-                        postfixValue = null;
-                        if (initSize == 4)
-                            return new JSONPrimitive(false);
-                        else
-                            return new JSONPrimitive(true);
-                    }
-                } else {
-                    throw new IllegalArgumentException("error bool");
-                }
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("error bool");
+        while ((c = reader.read()) != END_READ_STREAM) {
+            if (!isExpected(c, expr, index++)) {
+                throw new IllegalArgumentException();
+            }
+            if (expectedLength == index) {
+                return true;
             }
         }
-        throw new IllegalArgumentException("error! JSONParser.booleanSeparator");
+        if (expectedLength != index) {
+            throw new IllegalArgumentException();
+        }
+        return true;
+    }
+
+    private boolean isExpected(int c, String expected, int index) {
+        return c == expected.charAt(index);
     }
 
     private JSONElement nullSeparator(int indexCharInput) throws IOException {
-        ArrayList<Character> postfixValue = new ArrayList<Character>();
-
-        if (indexCharInput == 'n') {
-            postfixValue.add('u');
-            postfixValue.add('l');
-            postfixValue.add('l');
-        } else throw new IOException("error! JSONParser.nullSeparator");
-
-        int c;
-        while ((c = stringReader.read()) != -1) {
-            try {
-                if ((char) c == postfixValue.get(0)) {
-                    postfixValue.remove(0);
-                    if (postfixValue.size() == 0) {
-                        return JSONNull.INSTANCE;
-                    }
-                } else {
-                    throw new IllegalArgumentException("error! JSONParser.nullSeparator");
-                }
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("error! JSONParser.nullSeparator");
-            }
-        }
-        throw new IllegalArgumentException("error! JSONParser.nullSeparator");
+        if (getBooleanOrNullByReader(indexCharInput) != null)
+            throw new IllegalArgumentException();
+        return JSONNull.INSTANCE;
     }
 
-    private JSONElement arraySeparator(int indexCharInput) throws IOException {
-        JSONArray arrayElement = null;
-        arrayElement = doBegin();
+    private JSONElement arraySeparator() throws IOException {
+        JSONArray arrayElement = doBegin();
         if (arrayElement.size() != 0) {
             doValue(arrayElement);
         }
@@ -229,33 +185,33 @@ public class JSONParser {
 
     private JSONArray doBegin() throws IOException {
         JSONArray jsonArray = new JSONArray();
-        stringReader.mark(1);
+        reader.mark(1);
         int c;
-        while ((c = stringReader.read()) != -1) {
+        while ((c = reader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (c == 93)//]
+                if (c == CLOSING_SQUARE_BRACKET)
                 {
                     return jsonArray;
                 } else {
-                    stringReader.reset();
+                    reader.reset();
                     jsonArray.add(jsonFactory());
                     return jsonArray;
                 }
             }
-            stringReader.mark(1);
+            reader.mark(1);
         }
         throw new IllegalArgumentException("error! JSONParser.arraySeparator.doBegin");
     }
 
     private void doValue(JSONArray jsonArray) throws IOException {
         int c;
-        while ((c = stringReader.read()) != -1) {
+        while ((c = reader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (c == 44)//,
+                if (c == CHAR_COMMA)
                 {
                     jsonArray.add(jsonFactory());
                 } else {
-                    if (c == 93)//]
+                    if (c == CLOSING_SQUARE_BRACKET)
                     {
                         return;
                     } else {
@@ -267,23 +223,21 @@ public class JSONParser {
         throw new IllegalArgumentException("error! JSONParser.arraySeparator.doValue");
     }
 
-    private JSONElement objectSeparator(int indexCharInput) throws IOException {
-        //ValueSeparator valueSeparator = null;
+    private JSONElement objectSeparator() throws IOException {
         JSONObject jsonObject = new JSONObject();
         String tmpString = null;
         JSONElement tmpElement = null;
         EnumSeparator currentAction = EnumSeparator.BEGIN;
         int c;
-        while ((c = stringReader.read()) != -1) {
+        while ((c = reader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
                 switch (currentAction) {
                     case BEGIN:
-                        if (c == 125)//}
+                        if (c == CLOSING_CURLY_BRACKET)
                         {
                             return jsonObject;
                         } else {
-                            if (c == 34)//"
-                            {
+                            if (c == DOUBLE_QUOTE) {
                                 tmpString = stringSeparator(c).getAsString();
                                 currentAction = EnumSeparator.STRING;
                             } else
@@ -291,7 +245,7 @@ public class JSONParser {
                         }
                         break;
                     case STRING:
-                        if (c == 58) //:
+                        if (c == CHAR_COLON)
                         {
                             tmpElement = jsonFactory();
                             currentAction = EnumSeparator.VALUE;
@@ -300,16 +254,16 @@ public class JSONParser {
                         }
                         break;
                     case VALUE:
-                        if (c == 44)//,
+                        if (c == CHAR_COMMA)
                         {
                             jsonObject.add(tmpString, tmpElement);
                             tmpString = stringSeparator(-1).getAsString();
                             currentAction = EnumSeparator.STRING;
                         } else {
-                            if (c == 125)//}
+                            if (c == CLOSING_CURLY_BRACKET)
                             {
                                 jsonObject.add(tmpString, tmpElement);
-                            return jsonObject;
+                                return jsonObject;
                             } else {
                                 throw new IllegalArgumentException("error! JSONParser.objectSeparator");
                             }
