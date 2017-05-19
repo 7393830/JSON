@@ -3,33 +3,19 @@ package ru.evgenii;
 
 import java.util.*;
 
-/**
- * Created by e.kostyukovskiy on 03.04.2017.
- */
 public class JSONArray extends JSONElement {
 
     private   List<JSONElement> elements;
-    public JSONArray() {
-        elements = new ArrayList<JSONElement>();
+    JSONArray() {
+        elements = new ArrayList<>();
     }
-    public int size() {
+    int size() {
         return elements.size();
     }
 
-    public JSONElement get(int i) {
+    JSONElement get(int i) {
         return elements.get(i);
     }
-
-    /*public <T> Spliterator<T> spliterator() {
-        Spliterators.spliterator(T);
-        //return null;
-       //Arrays.spliterator(src);
-    }*/
-    /*public <T> Spliterator<T> spliterator() {
-        return elements.spliterator();
-        //return null;
-        //Arrays.spliterator(src);
-    }*/
 
 
     public void add(JSONElement element) {
@@ -46,7 +32,7 @@ public class JSONArray extends JSONElement {
         throw new IllegalStateException();
     }
 
-    public <JSONElement> Spliterator<ru.evgenii.JSONElement> spliterator() {
+    Spliterator<ru.evgenii.JSONElement> spliterator() {
         return elements.spliterator();
     }
 

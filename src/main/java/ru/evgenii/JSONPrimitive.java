@@ -2,27 +2,26 @@ package ru.evgenii;
 
 import java.math.BigInteger;
 
-/**
- * Created by e.kostyukovskiy on 03.04.2017.
- */
+
 public class JSONPrimitive extends JSONElement {
 
     protected Object value;
 
-    public JSONPrimitive() {
+    JSONPrimitive() {
     }
 
-    public JSONPrimitive(String string) {
+    JSONPrimitive(String string) {
         setValue(string);
     }
 
-    public JSONPrimitive(Boolean bool) {
+    JSONPrimitive(Boolean bool) {
         setValue(bool);
     }
 
-    public JSONPrimitive(Number number) {
+    JSONPrimitive(Number number) {
         setValue(number);
     }
+
     public boolean isNumber() {
         return value instanceof Number;
     }
@@ -38,17 +37,41 @@ public class JSONPrimitive extends JSONElement {
 
     @Override
     public double getAsDouble() {
-        return isNumber() ? getAsNumber().doubleValue() : Double.parseDouble(getAsString());
+
+        if (isNumber()) {
+            return getAsNumber().doubleValue();
+        } else {
+            throw new NumberFormatException("error. Not Double");
+        }
     }
 
     @Override
     public int getAsInt() {
-        return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
+
+        if (isNumber()) {
+            return getAsNumber().intValue();
+        } else {
+            throw new NumberFormatException("error. Not Int");
+        }
     }
 
     @Override
+    public long getAsLong() {
+        if (isNumber()) {
+            return getAsNumber().longValue();
+        } else {
+            throw new NumberFormatException("error. Not Long");
+        }
+    }
+
+
+    @Override
     public float getAsFloat() {
-        return isNumber() ? getAsNumber().floatValue() : Float.parseFloat(getAsString());
+        if (isNumber()) {
+            return getAsNumber().floatValue();
+        } else {
+            throw new NumberFormatException("error. Not Float");
+        }
     }
 
     @Override
@@ -59,21 +82,14 @@ public class JSONPrimitive extends JSONElement {
     @Override
     public boolean getAsBoolean() {
         if (isBoolean()) {
-            return getAsBooleanWrapper().booleanValue();
+            return (Boolean)value;
         } else {
-            // Check to see if the value as a String is "true" in any case.
             throw new IllegalStateException("error. Not Boolean");
-            //return Boolean.parseBoolean(getAsString());
         }
     }
 
     public boolean isBoolean() {
         return value instanceof Boolean;
-    }
-
-    @Override
-    Boolean getAsBooleanWrapper() {
-        return (Boolean) value;
     }
 
     @Override
@@ -84,7 +100,7 @@ public class JSONPrimitive extends JSONElement {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        JSONPrimitive other = (JSONPrimitive)obj;
+        JSONPrimitive other = (JSONPrimitive) obj;
         if (value == null) {
             return other.value == null;
         }
@@ -93,13 +109,12 @@ public class JSONPrimitive extends JSONElement {
         }
         if (value instanceof Number && other.value instanceof Number) {
             double a = getAsNumber().doubleValue();
-            // Java standard types other than double return true for two NaN. So, need
-            // special handling for double.
             double b = other.getAsNumber().doubleValue();
             return a == b || (Double.isNaN(a) && Double.isNaN(b));
         }
         return value.equals(other.value);
     }
+
     private static boolean isIntegral(JSONPrimitive primitive) {
         if (primitive.value instanceof Number) {
             Number number = (Number) primitive.value;

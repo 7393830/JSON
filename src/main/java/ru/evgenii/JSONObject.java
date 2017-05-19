@@ -1,22 +1,26 @@
 package ru.evgenii;
 
 
-import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
+import java.util.Iterator;
+import java.util.Map;
 
-/**
- * Created by e.kostyukovskiy on 03.04.2017.
- */
-public class JSONObject extends JSONElement {
+
+public class JSONObject extends JSONElement implements Iterable<Map.Entry<String, JSONElement>>{
 
     private LinkedTreeMap<String, JSONElement> members;
 
-    public JSONObject() {
-        members = new LinkedTreeMap<String, JSONElement>();
+    JSONObject() {
+        members = new LinkedTreeMap<>();
     }
 
-    public JSONElement get(String argStr) {
+    JSONElement get(String argStr) {
         return members.get(argStr);
+    }
+
+
+    public Iterator<Map.Entry<String, JSONElement>> iterator(){
+        return members.entrySet().iterator();
     }
 
     public JSONPrimitive getAsJsonPrimitive(String argStr)

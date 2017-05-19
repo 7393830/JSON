@@ -1,14 +1,5 @@
 package ru.evgenii;
 
-import com.google.gson.JsonElement;
-
-import java.io.StringReader;
-import java.util.Deque;
-import java.util.List;
-
-/**
- * Created by e.kostyukovskiy on 03.04.2017.
- */
 public class JSONElement {
 
     public JSONElement() {
@@ -26,7 +17,7 @@ public class JSONElement {
         return this instanceof JSONPrimitive;
     }
 
-    public boolean isJsonNull() {
+    boolean isJsonNull() {
         return this instanceof JSONNull;
     }
 
@@ -37,7 +28,7 @@ public class JSONElement {
         throw new IllegalStateException("Not a JSON Object: " + this);
     }
 
-    public JSONArray getAsJsonArray() {
+    JSONArray getAsJsonArray() {
         if (isJsonArray()) {
             return (JSONArray) this;
         }
@@ -79,11 +70,7 @@ public class JSONElement {
         throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
-    Boolean getAsBooleanWrapper() {
-        throw new UnsupportedOperationException(getClass().getSimpleName());
-    }
-
-    public JSONNull getAsJsonNull() {
+    JSONNull getAsJsonNull() {
         if (isJsonNull()) {
             return (JSONNull) this;
         }
