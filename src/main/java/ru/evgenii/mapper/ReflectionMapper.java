@@ -27,27 +27,66 @@ import ru.evgenii.mapper.annotations.JSONCreator;
 import ru.evgenii.mapper.annotations.JSONField;
 
 public class ReflectionMapper {
-    public <T> T createObject(JSONElement je, Class<T> simplePOJOClass) {
+    @SuppressWarnings("unchecked")
+    public <T> T createObject(JSONElement je, Class<T> tClass) {
         try {
             T objT;
-            Constructor checkAnnotationConstructor = checkAnnotationConstructor(simplePOJOClass, JSONCreator.class);
+            Constructor checkAnnotationConstructor = checkAnnotationConstructor(tClass, JSONCreator.class);
             if (checkAnnotationConstructor != null) {
                 List<Object> objects = vernutSpisokObektov(checkAnnotationConstructor, je);
+                Object[] fffa = vernutSpisokObektov1(checkAnnotationConstructor, je);
 
                 Object[] fff = new Object[objects.size()];
-                for(int i= 0; i< objects.size();i++) {
+                for (int i = 0; i < objects.size(); i++) {
                     fff[i] = objects.get(i);
                 }
-                objT = (T) checkAnnotationConstructor.newInstance(fff);//( new Object[]{valuesFromJSON});
+                objT = (T) checkAnnotationConstructor.newInstance(fffa);//( new Object[]{valuesFromJSON});
 
             } else {
-                objT = simplePOJOClass.newInstance();
-                proxodPoJSON(je, simplePOJOClass, objT);
+                objT = tClass.newInstance();
+                proxodPoJSON(je, tClass, objT);
             }
             return objT;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
             throw new IllegalArgumentException("error.");
         }
+    }
+
+    private Object[] vernutSpisokObektov1(Constructor checkAnnotationConstructor, JSONElement je) {
+        if (!je.isJsonObject()) {
+            throw new IllegalArgumentException("error.");
+        }
+        Parameter[] parameters = checkAnnotationConstructor.getParameters();
+        Object[] objects = new Object[parameters.length];
+        int i = 0;
+        for (Parameter parameter : parameters) {
+            if (parameter.isAnnotationPresent(JSONField.class)) {
+                String name = parameter.getAnnotation(JSONField.class).name();
+                boolean required = parameter.getAnnotation(JSONField.class).required();
+                Class clazz = parameter.getType();
+
+                JSONObject jsonObject = je.getAsJsonObject();
+
+                JSONElement jsel = jsonObject.get(name);
+                if (jsel == null) {
+                    if (!required) {
+                        objects[i] = null;
+                    } else {
+                        throw new IllegalArgumentException("error.");
+                    }
+                } else {
+                    objects[i] = factory(clazz).convert(jsel);
+                }
+            } else {
+                throw new IllegalArgumentException("error.");}
+
+                i++;
+
+        }
+        if (objects.length != parameters.length) {
+            throw new IllegalArgumentException("error.");
+        }
+        return objects;
     }
 
     private List<Object> vernutSpisokObektov(Constructor checkAnnotationConstructor, JSONElement je) {
@@ -56,7 +95,6 @@ public class ReflectionMapper {
         }
         List<Object> objects = new ArrayList<>();
         Parameter[] parameters = checkAnnotationConstructor.getParameters();
-        //int counterParameters = 0;
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(JSONField.class)) {
                 String name = parameter.getAnnotation(JSONField.class).name();
@@ -75,14 +113,11 @@ public class ReflectionMapper {
                 } else {
                     objects.add(factory(clazz).convert(jsel));
                 }
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("error.");
             }
         }
-        if(objects.size() != parameters.length)
-        {
+        if (objects.size() != parameters.length) {
             throw new IllegalArgumentException("error.");
         }
         return objects;
@@ -217,101 +252,6 @@ public class ReflectionMapper {
             myMap.put(field.getName(), factory(fieldType));
         }
         return obj;
-    }
-
-    public <T> T createObject2(JSONElement je, Class<T> simplePOJOClass) {
-
-        try {
-            Object obj = fillMyMap(simplePOJOClass);
-            if (je.isJsonObject()) {
-                JSONObject jsonObject = je.getAsJsonObject();
-                for (Map.Entry<String, JSONElement> next : jsonObject) {
-                    String key = next.getKey();
-                    JSONElement value = next.getValue();
-                    if (value.isJsonPrimitive()) {
-                        if (myMap.containsKey(key)) {
-                            Field field = simplePOJOClass.getDeclaredField(key);
-                            field.setAccessible(true);
-                            field.set(obj, myMap.get(key).convert(value));
-                        } else {
-                            throw new IllegalArgumentException("error. JSONElement overrides the type.");
-                        }
-                    } else {
-                        if (value.isJsonObject()) {
-                            if (myMap.containsKey(key)) {
-                                Field field = simplePOJOClass.getDeclaredField(key);
-                                field.setAccessible(true);
-                                field.set(obj, myMap.get(key).convert(value));
-                            } else {
-                                throw new IllegalArgumentException("error. JSONElement overrides the type.");
-                            }
-                        } else {
-                            if (value.isJsonArray()) {
-
-                            } else {
-
-                            }
-                        }
-                    }
-                }
-            } else {
-                throw new IllegalArgumentException("Error! ReflectionMapper.createObject");
-            }
-            return (T) obj;
-        } catch (InstantiationException | IllegalAccessException | NoSuchFieldException e) {
-            throw new IllegalArgumentException("Error! ReflectionMapper.createObject");
-        }
-    }
-
-    public <T> T createObject1(JSONElement je, Class<T> simplePOJOClass) {
-
-
-        try {
-            T t = simplePOJOClass.newInstance();
-            Object obj = simplePOJOClass.newInstance();
-
-            if (je.isJsonObject()) {
-                JSONObject jsonObject = je.getAsJsonObject();
-                for (Map.Entry<String, JSONElement> next : jsonObject) {
-                    String key = next.getKey();
-                    JSONElement value = next.getValue();
-                    if (value.isJsonPrimitive()) {
-                        Field field = simplePOJOClass.getDeclaredField(key);
-                        field.setAccessible(true);
-                        Class fieldType = field.getType();
-                        String tmpNameField = fieldType.getName().toLowerCase();
-                        if (tmpNameField.contains("int"))
-                            field.set(obj, value.getAsInt());
-                        else if (tmpNameField.contains("boolean"))
-                            field.set(obj, value.getAsBoolean());
-                        else if (tmpNameField.contains("double"))
-                            field.set(obj, value.getAsDouble());
-                        else if (tmpNameField.contains("float"))
-                            field.set(obj, value.getAsFloat());
-                        else if (tmpNameField.contains("long"))
-                            field.set(obj, value.getAsLong());
-                        else
-                            //if (tmpNameField.contains("string"))
-                            field.set(obj, value.getAsString());
-                    } else {
-                        if (value.isJsonObject()) {
-
-                        } else {
-                            if (value.isJsonArray()) {
-
-                            } else {
-
-                            }
-                        }
-                    }
-                }
-            } else {
-                throw new IllegalArgumentException("Error! ReflectionMapper.createObject");
-            }
-            return (T) obj;
-        } catch (InstantiationException | IllegalAccessException | NoSuchFieldException e) {
-            throw new IllegalArgumentException("Error! ReflectionMapper.createObject");
-        }
     }
 }
 
