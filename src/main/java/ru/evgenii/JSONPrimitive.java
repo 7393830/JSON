@@ -1,5 +1,7 @@
 package ru.evgenii;
 
+import com.google.gson.internal.LazilyParsedNumber;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 
@@ -32,7 +34,7 @@ public class JSONPrimitive extends JSONElement {
 
     @Override
     public Number getAsNumber() {
-        return (Number) value;
+        return value instanceof String ? new LazilyParsedNumber((String) value) : (Number) value;//return (Number) value;
     }
 
     @Override
@@ -75,8 +77,25 @@ public class JSONPrimitive extends JSONElement {
     }
 
     @Override
+    public BigDecimal getAsBigDecimal() {
+        return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
+    }
+
+    @Override
+    public BigInteger getAsBigInteger() {
+        return value instanceof BigInteger ?
+                (BigInteger) value : new BigInteger(value.toString());
+    }
+
+    @Override
     public String getAsString() {
-        return (String) value;
+        if (isNumber()) {
+            return getAsNumber().toString();
+        } else if (isBoolean()) {
+            return value.toString();
+        } else {
+            return (String) value;
+        }
     }
 
     @Override

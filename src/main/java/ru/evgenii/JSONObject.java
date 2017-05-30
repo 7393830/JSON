@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 
-public class JSONObject extends JSONElement implements Iterable<Map.Entry<String, JSONElement>>{
+public class JSONObject extends JSONElement implements Iterable<Map.Entry<String, JSONElement>> {
 
     private LinkedTreeMap<String, JSONElement> members;
 
@@ -14,17 +14,19 @@ public class JSONObject extends JSONElement implements Iterable<Map.Entry<String
         members = new LinkedTreeMap<>();
     }
 
-    JSONElement get(String argStr) {
+    public JSONElement get(String argStr) {
         return members.get(argStr);
     }
 
+    public int count() {
+        return members.size();
+    }
 
-    public Iterator<Map.Entry<String, JSONElement>> iterator(){
+    public Iterator<Map.Entry<String, JSONElement>> iterator() {
         return members.entrySet().iterator();
     }
 
-    public JSONPrimitive getAsJsonPrimitive(String argStr)
-    {
+    public JSONPrimitive getAsJsonPrimitive(String argStr) {
         return (JSONPrimitive) members.get(argStr);
     }
 

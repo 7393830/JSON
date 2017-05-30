@@ -1,5 +1,8 @@
 package ru.evgenii;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class JSONElement {
 
     public JSONElement() {
@@ -63,6 +66,14 @@ public class JSONElement {
     }
 
     public float getAsFloat() {
+        throw new UnsupportedOperationException(getClass().getSimpleName());
+    }
+
+    public BigDecimal getAsBigDecimal() {
+        throw new UnsupportedOperationException(getClass().getSimpleName());
+    }
+
+    public BigInteger getAsBigInteger() {
         throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
