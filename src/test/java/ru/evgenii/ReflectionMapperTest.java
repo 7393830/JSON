@@ -4,10 +4,12 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.Map;
 import org.junit.Test;
-import ru.evgenii.mapper.Currency;
-import ru.evgenii.mapper.ReflectionMapper;
-import ru.evgenii.mapper.annotations.JSONCreator;
-import ru.evgenii.mapper.annotations.JSONField;
+import ru.evgenii.mapper.reflection.Currency;
+import ru.evgenii.mapper.reflection.ReflectionMapper;
+import ru.evgenii.mapper.reflection.annotations.JSONCreator;
+import ru.evgenii.mapper.reflection.annotations.JSONField;
+import ru.evgenii.parser.ImplementedJsonParser;
+import ru.evgenii.parser.JSONElement;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

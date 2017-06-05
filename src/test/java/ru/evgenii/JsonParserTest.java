@@ -4,16 +4,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.evgenii.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
+import ru.evgenii.parser.ImplementedJsonParser;
+import ru.evgenii.parser.JSONArray;
+import ru.evgenii.parser.JSONElement;
+import ru.evgenii.parser.JSONNull;
+import ru.evgenii.parser.JSONObject;
+import ru.evgenii.parser.JSONPrimitive;
+import ru.evgenii.parser.MyJSONArray;
+import ru.evgenii.parser.MyJSONObject;
+import ru.evgenii.parser.MyJSONPrimitive;
+import ru.evgenii.parser.StreamingJsonParser;
 
 public class JsonParserTest {
     final private StreamingJsonParser sjp = new ImplementedJsonParser();

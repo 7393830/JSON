@@ -1,4 +1,4 @@
-package ru.evgenii;
+package ru.evgenii.mapper;
 
 import ru.evgenii.parser.JSONElement;
 

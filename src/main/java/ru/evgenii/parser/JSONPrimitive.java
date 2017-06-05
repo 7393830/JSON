@@ -1,4 +1,4 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 public class JSONPrimitive extends JSONElement {
 
-    protected Object value;
+    Object value;
 
     JSONPrimitive(String string) {
         setValue(string);
@@ -20,7 +20,7 @@ public class JSONPrimitive extends JSONElement {
         setValue(number);
     }
 
-    void setValue(Object primitive) {
+    private void setValue(Object primitive) {
         this.value = primitive;
     }
 
@@ -40,7 +40,7 @@ public class JSONPrimitive extends JSONElement {
             if (isStringType()) {
                 return Double.valueOf((String) value);
             } else {
-                throw new NumberFormatException("error. Not Double");
+                throw new NumberFormatException("error. Message: Not Double");
             }
         }
     }
@@ -53,7 +53,7 @@ public class JSONPrimitive extends JSONElement {
             if (isStringType()) {
                 return Integer.decode((String) value);
             } else {
-                throw new NumberFormatException("error. Not Int");
+                throw new NumberFormatException("error. Message: Not Int");
             }
         }
     }
@@ -66,7 +66,7 @@ public class JSONPrimitive extends JSONElement {
             if (isStringType()) {
                 return Long.valueOf((String) value);
             } else {
-                throw new NumberFormatException("error. Not Long");
+                throw new NumberFormatException("error. Message: Not Long");
             }
         }
     }
@@ -79,7 +79,7 @@ public class JSONPrimitive extends JSONElement {
             if (isStringType()) {
                 return Float.valueOf((String) value);
             } else {
-                throw new NumberFormatException("error. Not Float");
+                throw new NumberFormatException("error. Message: Not Float");
             }
         }
     }
@@ -105,7 +105,7 @@ public class JSONPrimitive extends JSONElement {
         if (isBoolean()) {
             return (Boolean) value;
         } else {
-            throw new IllegalStateException("error. Not Boolean");
+            throw new IllegalStateException("error. Message: Not Boolean");
         }
     }
 

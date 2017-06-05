@@ -8,7 +8,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.evgenii.mapper.ReflectionMapper;
+import ru.evgenii.mapper.Mapper;
+import ru.evgenii.mapper.MappingJsonParser;
+import ru.evgenii.mapper.reflection.ReflectionMapper;
+import ru.evgenii.parser.ImplementedJsonParser;
+import ru.evgenii.parser.JSONElement;
+import ru.evgenii.parser.JSONObject;
+import ru.evgenii.parser.MyJSONPrimitive;
 
 
 public class MappingJsonParserTest {

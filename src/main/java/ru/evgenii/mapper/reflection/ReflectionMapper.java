@@ -1,5 +1,5 @@
 
-package ru.evgenii.mapper;
+package ru.evgenii.mapper.reflection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -13,16 +13,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ru.evgenii.parser.JSONElement;
 import ru.evgenii.parser.JSONObject;
-import ru.evgenii.mapper.adapters.types.BigDecimalTypeAdapter;
-import ru.evgenii.mapper.adapters.types.BigIntegerTypeAdapter;
-import ru.evgenii.mapper.adapters.types.CurrencyTypeAdapter;
-import ru.evgenii.mapper.adapters.types.IntegerTypeAdapter;
-import ru.evgenii.mapper.adapters.types.LongTypeAdapter;
-import ru.evgenii.mapper.adapters.types.MapTypeAdapter;
-import ru.evgenii.mapper.adapters.types.StringTypeAdapter;
-import ru.evgenii.mapper.adapters.types.TypeAdapter;
-import ru.evgenii.mapper.annotations.JSONCreator;
-import ru.evgenii.mapper.annotations.JSONField;
+import ru.evgenii.mapper.reflection.adapters.types.BigDecimalTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.BigIntegerTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.CurrencyTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.IntegerTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.LongTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.MapTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.StringTypeAdapter;
+import ru.evgenii.mapper.reflection.adapters.types.TypeAdapter;
+import ru.evgenii.mapper.reflection.annotations.JSONCreator;
+import ru.evgenii.mapper.reflection.annotations.JSONField;
 
 public class ReflectionMapper {
 
@@ -38,12 +38,12 @@ public class ReflectionMapper {
         typeAdapterList.add(new MapTypeAdapter());
     }
 
-    public static String fieldNameOf(String nothingToDo) {
-        return sbFieldNameOf(nothingToDo).toString();
+    public String fieldNameOf(String fieldName) {
+        return sbFieldNameOf(fieldName).toString();
     }
 
-    public static String getterNameOf(String idempotent) {
-        StringBuffer sb = sbFieldNameOf(idempotent);
+    public String getterNameOf(String fieldName) {
+        StringBuffer sb = sbFieldNameOf(fieldName);
         Character ch = sb.charAt(0);
         if (Character.isLowerCase(ch)) {
             sb.replace(0, 1, "get" + Character.toUpperCase(ch));
@@ -51,9 +51,9 @@ public class ReflectionMapper {
         return sb.toString();
     }
 
-    private static StringBuffer sbFieldNameOf(String nothingToDo) {
+    private StringBuffer sbFieldNameOf(String fieldName) {
         Pattern p = Pattern.compile("(_[a-z])");
-        Matcher m = p.matcher(nothingToDo);
+        Matcher m = p.matcher(fieldName);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             m.appendReplacement(sb, m.group(1).toUpperCase());
@@ -63,12 +63,12 @@ public class ReflectionMapper {
         return sb;
     }
 
-    private static void deleteUnderscore(StringBuffer builder) {
+    private void deleteUnderscore(StringBuffer stringBuffer) {
         String from = "_";
-        int index = builder.indexOf(from);
+        int index = stringBuffer.indexOf(from);
         while (index != -1) {
-            builder.replace(index, index + from.length(), "");
-            index = builder.indexOf(from, index);
+            stringBuffer.replace(index, index + from.length(), "");
+            index = stringBuffer.indexOf(from, index);
         }
     }
 
@@ -86,7 +86,7 @@ public class ReflectionMapper {
             }
             return objT;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
-            throw new IllegalArgumentException("error. ReflectionMapper.createObject \n" + e.getMessage());
+            throw new IllegalArgumentException("error. ReflectionMapper.createObject. Message: " + e.getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ public class ReflectionMapper {
 
     private Object[] getArrayObjectForConstruct(Constructor checkAnnotationConstructor, JSONElement je) {
         if (!je.isJsonObject()) {
-            throw new IllegalArgumentException("error. ReflectionMapper.getArrayObjectForConstruct \nInput object must be JSONObject.");
+            throw new IllegalArgumentException("error. ReflectionMapper.getArrayObjectForConstruct. Message: Input object must be JSONObject");
         }
         Parameter[] parameters = checkAnnotationConstructor.getParameters();
         Object[] objects = new Object[parameters.length];
@@ -119,7 +119,7 @@ public class ReflectionMapper {
                     if (!required) {
                         objects[i] = null;
                     } else {
-                        throw new IllegalArgumentException("error. parameter " + parameter.getName() + " is required");
+                        throw new IllegalArgumentException("error. Message: Parameter " + parameter.getName() + " is required");
                     }
                 } else {
                     TypeAdapter typeAdapter = factoryTypeAdapter(parameterType);
@@ -131,7 +131,7 @@ public class ReflectionMapper {
 
                 }
             } else {
-                throw new IllegalArgumentException("error. requested annotation is not found");
+                throw new IllegalArgumentException("error. Message: Requested annotation is not found");
             }
             i++;
         }
@@ -141,25 +141,25 @@ public class ReflectionMapper {
         return objects;
     }
 
-    private <T> void mappingJSON(JSONElement je, T obj) throws NoSuchFieldException, IllegalAccessException {
+    private <T> void mappingJSON(JSONElement je, T tObj) throws NoSuchFieldException, IllegalAccessException {
         if (je.isJsonObject()) {
             JSONObject jsonObject = je.getAsJsonObject();
             for (Map.Entry<String, JSONElement> next : jsonObject) {
                 String key = next.getKey();
                 JSONElement value = next.getValue();
 
-                Field field = obj.getClass().getDeclaredField(key);
+                Field field = tObj.getClass().getDeclaredField(key);
                 if (field != null) {
                     Class<?> fieldType = field.getType();
                     TypeAdapter typeAdapter = factoryTypeAdapter(fieldType);
                     field.setAccessible(true);
                     if (typeAdapter != null) {
-                        field.set(obj, typeAdapter.convert(value));
+                        field.set(tObj, typeAdapter.convert(value));
                     } else {
-                        field.set(obj, createObject(value, fieldType));
+                        field.set(tObj, createObject(value, fieldType));
                     }
                 } else {
-                    throw new IllegalArgumentException("error. there is no such parameter");
+                    throw new IllegalArgumentException("error. Message: There is no such parameter");
                 }
             }
         }

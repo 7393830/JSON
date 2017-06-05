@@ -1,4 +1,4 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 
 import com.google.gson.internal.LinkedTreeMap;
@@ -26,19 +26,11 @@ public class JSONObject extends JSONElement implements Iterable<Map.Entry<String
         return members.entrySet().iterator();
     }
 
-    public JSONPrimitive getAsJsonPrimitive(String argStr) {
-        return (JSONPrimitive) members.get(argStr);
-    }
-
     public void add(String property, JSONElement value) {
         if (value == null) {
             value = JSONNull.INSTANCE;
         }
         members.put(property, value);
-    }
-
-    public JSONObject getAsJsonObject(String memberName) {
-        return (JSONObject) members.get(memberName);
     }
 
     @Override

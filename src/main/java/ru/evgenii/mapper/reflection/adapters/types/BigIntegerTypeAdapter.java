@@ -1,4 +1,4 @@
-package ru.evgenii.mapper.reflection.types;
+package ru.evgenii.mapper.reflection.adapters.types;
 
 import java.math.BigInteger;
 import ru.evgenii.parser.JSONElement;
@@ -9,7 +9,7 @@ public class BigIntegerTypeAdapter implements TypeAdapter {
         return BigInteger.class.equals(tClass);
     }
     @Override
-    public BigInteger convert(JSONElement str) {
-        return str.getAsBigInteger();
+    public BigInteger convert(JSONElement element) {
+        return element.getAsBigInteger();
     }
 }

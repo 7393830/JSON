@@ -1,7 +1,7 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
-class MyJSONArray extends JSONArray {
-    MyJSONArray()
+public class MyJSONArray extends JSONArray {
+    public MyJSONArray()
     {
         super();
     }

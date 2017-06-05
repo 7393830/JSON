@@ -1,4 +1,4 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -20,7 +20,7 @@ public abstract class JSONElement {
         return this instanceof JSONPrimitive;
     }
 
-    boolean isJsonNull() {
+    public boolean isJsonNull() {
         return this instanceof JSONNull;
     }
 
@@ -28,21 +28,21 @@ public abstract class JSONElement {
         if (isJsonObject()) {
             return (JSONObject) this;
         }
-        throw new IllegalStateException("Not a JSON Object: " + this);
+        throw new IllegalStateException("error. Message: Not a JSON Object - " + this);
     }
 
-    JSONArray getAsJsonArray() {
+    public JSONArray getAsJsonArray() {
         if (isJsonArray()) {
             return (JSONArray) this;
         }
-        throw new IllegalStateException("This is not a JSON Array.");
+        throw new IllegalStateException("error. Message: This is not a JSON Array");
     }
 
     public JSONPrimitive getAsJsonPrimitive() {
         if (isJsonPrimitive()) {
             return (JSONPrimitive) this;
         }
-        throw new IllegalStateException("This is not a JSON Primitive.");
+        throw new IllegalStateException("error. Message: This is not a JSON Primitive");
     }
 
     public String getAsString() {
@@ -77,10 +77,10 @@ public abstract class JSONElement {
         throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
-    JSONNull getAsJsonNull() {
+    public JSONNull getAsJsonNull() {
         if (isJsonNull()) {
             return (JSONNull) this;
         }
-        throw new IllegalStateException("This is not a JSON Null.");
+        throw new IllegalStateException("error. Message: This is not a JSON Null");
     }
 }

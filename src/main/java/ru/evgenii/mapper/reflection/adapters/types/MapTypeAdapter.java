@@ -1,4 +1,4 @@
-package ru.evgenii.mapper.reflection.types;
+package ru.evgenii.mapper.reflection.adapters.types;
 
 import com.google.gson.internal.LinkedTreeMap;
 import java.util.Map;
@@ -10,11 +10,11 @@ public class MapTypeAdapter implements TypeAdapter {
         return Map.class.equals(tClass);
     }
     @Override
-    public Map<String, Object> convert(JSONElement jsonElement) {
+    public Map<String, Object> convert(JSONElement element) {
         Map<String, Object> tmpMap;
-        if (jsonElement.isJsonObject()) {
+        if (element.isJsonObject()) {
             tmpMap = new LinkedTreeMap<>();
-            for (Map.Entry<String, JSONElement> next : jsonElement.getAsJsonObject()) {
+            for (Map.Entry<String, JSONElement> next : element.getAsJsonObject()) {
                 JSONElement je = next.getValue();
                 if(je.isJsonPrimitive())
                 {

@@ -1,19 +1,19 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 
 import java.util.*;
 
 public class JSONArray extends JSONElement {
 
-    private   List<JSONElement> elements;
+    private List<JSONElement> elements;
     JSONArray() {
         elements = new ArrayList<>();
     }
-    int size() {
+    public int size() {
         return elements.size();
     }
 
-    JSONElement get(int i) {
+    public JSONElement get(int i) {
         return elements.get(i);
     }
 
@@ -32,7 +32,7 @@ public class JSONArray extends JSONElement {
         throw new IllegalStateException();
     }
 
-    Spliterator<ru.evgenii.JSONElement> spliterator() {
+    public Spliterator<JSONElement> spliterator() {
         return elements.spliterator();
     }
 

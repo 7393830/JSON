@@ -1,8 +1,7 @@
-package ru.evgenii.mapper.reflection.types;
-
+package ru.evgenii.mapper.reflection.adapters.types;
 
 import ru.evgenii.parser.JSONElement;
-import ru.evgenii.mapper.Currency;
+import ru.evgenii.mapper.reflection.Currency;
 
 public class CurrencyTypeAdapter implements TypeAdapter {
     @Override
@@ -10,12 +9,12 @@ public class CurrencyTypeAdapter implements TypeAdapter {
         return Currency.class.equals(tClass);
     }
     @Override
-    public Currency convert(JSONElement str) {
-        for (Currency dir : Currency.values()) {
-            if(str.getAsString().equals(dir.toString())) {
-                return dir;
+    public Currency convert(JSONElement element) {
+        for (Currency currency : Currency.values()) {
+            if(element.getAsString().equals(currency.toString())) {
+                return currency;
             }
         }
-        throw new IllegalArgumentException("error. Illegal input currency.");
+        throw new IllegalArgumentException("error. CurrencyTypeAdapter.convert. Message: Illegal input currency");
     }
 }

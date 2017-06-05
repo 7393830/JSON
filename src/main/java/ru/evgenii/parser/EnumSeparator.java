@@ -1,6 +1,6 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
-public enum EnumSeparator {
+enum EnumSeparator {
     BEGIN,
     STRING,
     VALUE

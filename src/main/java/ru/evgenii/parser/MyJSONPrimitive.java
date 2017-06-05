@@ -1,18 +1,17 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
-class MyJSONPrimitive extends JSONPrimitive {
-    MyJSONPrimitive(String test) {
-        super(test);
+public class MyJSONPrimitive extends JSONPrimitive {
+    public MyJSONPrimitive(String argString) {
+        super(argString);
     }
-    MyJSONPrimitive(Number test) {
-        super(test);
+    MyJSONPrimitive(Number argNmber) {
+        super(argNmber);
     }
-    MyJSONPrimitive(Boolean test) {
-        super(test);
+    MyJSONPrimitive(Boolean argNumber) {
+        super(argNumber);
     }
 
-
-    Object getAsObject() {
+    public Object getAsObject() {
         return value;
     }
 }

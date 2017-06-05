@@ -1,4 +1,4 @@
-package ru.evgenii.mapper.reflection.types;
+package ru.evgenii.mapper.reflection.adapters.types;
 
 import ru.evgenii.parser.JSONElement;
 
@@ -9,7 +9,7 @@ public class StringTypeAdapter implements TypeAdapter {
     }
 
     @Override
-    public String convert(JSONElement str) {
-        return str.getAsString();
+    public String convert(JSONElement element) {
+        return element.getAsString();
     }
 }

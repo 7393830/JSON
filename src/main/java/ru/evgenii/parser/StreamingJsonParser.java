@@ -1,4 +1,4 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 import java.io.Reader;
 

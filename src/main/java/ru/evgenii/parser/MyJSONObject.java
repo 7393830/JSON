@@ -1,7 +1,7 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
-class MyJSONObject extends JSONObject {
-    MyJSONObject()
+public class MyJSONObject extends JSONObject {
+    public MyJSONObject()
     {
         super();
     }

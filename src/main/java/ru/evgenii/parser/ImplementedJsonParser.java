@@ -1,10 +1,9 @@
-package ru.evgenii;
+package ru.evgenii.parser;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import org.apache.commons.lang3.math.NumberUtils;
-import ru.evgenii.parser.EnumSeparator;
 
 import static java.lang.Character.isDigit;
 
@@ -38,7 +37,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
             int c;
             while ((c = tmpStringReader.read()) != -1) {
                 if (!Character.isWhitespace(c)) {
-                    throw new IllegalArgumentException("error! ImplementedJsonParser.parse");
+                    throw new IllegalArgumentException("error. ImplementedJsonParser.parse");
                 }
             }
             return retJson;
@@ -68,12 +67,12 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                         case CHAR_OPENING_CURLY_BRACKET:
                             return getJSONObject();
                         default:
-                            throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONValue");
+                            throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONValue");
                     }
                 }
             }
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONValue");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONValue");
     }
 
     private JSONElement getJSONNumber(int indexCharInput) throws IOException {
@@ -98,7 +97,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         if (NumberUtils.isNumber(value)) {
             return new MyJSONPrimitive(NumberUtils.createNumber(value));
         } else {
-            throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONPrimitiveRefinedNumber");
+            throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONPrimitiveRefinedNumber");
         }
     }
 
@@ -123,7 +122,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                 tmpIsSlash = c == CHAR_BACK_SLASH;
             }
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONString");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONString");
     }
 
     private void checkString() throws IOException {
@@ -133,11 +132,11 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                 if (c == CHAR_DOUBLE_QUOTE) {
                     return;
                 } else {
-                    throw new IllegalArgumentException("error! ImplementedJsonParser.checkString");
+                    throw new IllegalArgumentException("error. ImplementedJsonParser.checkString");
                 }
             }
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.checkString");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.checkString");
     }
 
     private JSONElement getJSONBoolean(int indexCharInput) throws IOException {
@@ -206,7 +205,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
             }
             stringReader.mark(1);
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.doBegin");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.doBegin");
     }
 
     private void doValue(JSONArray jsonArray) throws IOException {
@@ -219,12 +218,12 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                     if (c == CHAR_CLOSING_SQUARE_BRACKET) {
                         return;
                     } else {
-                        throw new IllegalArgumentException("error! ImplementedJsonParser.doValue");
+                        throw new IllegalArgumentException("error. ImplementedJsonParser.doValue");
                     }
                 }
             }
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.doValue");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.doValue");
     }
 
     private JSONElement getJSONObject() throws IOException {
@@ -244,7 +243,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                                 tmpString = getJSONString(c).getAsString();
                                 currentAction = EnumSeparator.STRING;
                             } else
-                                throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONObject");
+                                throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONObject");
                         }
                         break;
                     case STRING:
@@ -252,7 +251,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                             tmpElement = getJSONValue();
                             currentAction = EnumSeparator.VALUE;
                         } else {
-                            throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONObject");
+                            throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONObject");
                         }
                         break;
                     case VALUE:
@@ -265,13 +264,13 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                                 jsonObject.add(tmpString, tmpElement);
                                 return jsonObject;
                             } else {
-                                throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONObject");
+                                throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONObject");
                             }
                         }
                         break;
                 }
             }
         }
-        throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONObject");
+        throw new IllegalArgumentException("error. ImplementedJsonParser.getJSONObject");
     }
 }

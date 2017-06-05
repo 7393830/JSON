@@ -1,4 +1,4 @@
-package ru.evgenii.mapper;
+package ru.evgenii.mapper.reflection;
 
 public enum Currency {
     RUB,
