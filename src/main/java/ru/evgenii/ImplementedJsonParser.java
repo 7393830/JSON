@@ -1,12 +1,11 @@
 package ru.evgenii;
 
-import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import static java.lang.Character.isDigit;
-import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 public class ImplementedJsonParser implements StreamingJsonParser {
 
@@ -31,10 +30,9 @@ public class ImplementedJsonParser implements StreamingJsonParser {
     private StringReader stringReader = null;
 
     @Override
-    public JSONElement parse(Reader reader)  {
-        stringReader = (StringReader)reader;
-        try(StringReader tmpStringReader = stringReader)
-        {
+    public JSONElement parse(Reader reader) {
+        stringReader = (StringReader) reader;
+        try (StringReader tmpStringReader = stringReader) {
             JSONElement retJson = getJSONValue();
             int c;
             while ((c = tmpStringReader.read()) != -1) {
@@ -43,7 +41,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                 }
             }
             return retJson;
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
         return null;
@@ -76,34 +74,31 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         }
         throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONValue");
     }
+
     private JSONElement getJSONNumber(int indexCharInput) throws IOException {
         StringBuilder toValues = new StringBuilder();
         toValues.append((char) indexCharInput);
         stringReader.mark(1);
         int c;
         while ((c = stringReader.read()) != END_READ_STREAM) {
-            if (isDigit((char) c) || c == CHAR_MINUS || c == CHAR_DOT || c == CHAR_PLUS || c == CHAR_E_LOW || c == CHAR_E_UP)
-            {
+            if (isDigit((char) c) || c == CHAR_MINUS || c == CHAR_DOT || c == CHAR_PLUS || c == CHAR_E_LOW || c == CHAR_E_UP) {
                 toValues.append((char) c);
                 stringReader.mark(1);
             } else {
                 stringReader.reset();
-                return numberCheck(toValues);
+                return getJSONPrimitiveRefinedNumber(toValues);
             }
         }
-        return numberCheck(toValues);
+        return getJSONPrimitiveRefinedNumber(toValues);
     }
 
-    private JSONElement numberCheck(StringBuilder toValues) {
-        if (isNumber(toValues.toString())) {
-            return new JSONPrimitive(getAsNumber(toValues.toString()));
+    private JSONElement getJSONPrimitiveRefinedNumber(StringBuilder toValues) {
+        String value= toValues.toString();
+        if (NumberUtils.isNumber(value)) {
+            return new MyJSONPrimitive(NumberUtils.createNumber(value));
         } else {
-            throw new IllegalArgumentException("error! ImplementedJsonParser.numberCheck");
+            throw new IllegalArgumentException("error! ImplementedJsonParser.getJSONPrimitiveRefinedNumber");
         }
-    }
-
-    private Number getAsNumber(String value) {
-        return new LazilyParsedNumber(value);
     }
 
     private JSONElement getJSONString(int indexCharInput) throws IOException {
@@ -114,15 +109,14 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         }
         int c;
         while ((c = stringReader.read()) != END_READ_STREAM) {
-            if (c == CHAR_DOUBLE_QUOTE)
-            {
+            if (c == CHAR_DOUBLE_QUOTE) {
                 if (tmpIsSlash) {
                     toValues.deleteCharAt(toValues.length() - 1);
                     toValues.append((char) c);
                     tmpIsSlash = false;
                     continue;
                 }
-                return new JSONPrimitive(toValues.toString());
+                return new MyJSONPrimitive(toValues.toString());
             } else {
                 toValues.append((char) c);
                 tmpIsSlash = c == CHAR_BACK_SLASH;
@@ -144,9 +138,11 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         }
         throw new IllegalArgumentException("error! ImplementedJsonParser.checkString");
     }
+
     private JSONElement getJSONBoolean(int indexCharInput) throws IOException {
-        return new JSONPrimitive(getBooleanOrNullByReader(indexCharInput));
+        return new MyJSONPrimitive(getBooleanOrNullByReader(indexCharInput));
     }
+
     private Boolean getBooleanOrNullByReader(int c) throws IOException {
         if (c == CHAR_FIRST_CHAR_TRUE && isCanReadValue("true")) {
             return true;
@@ -199,8 +195,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         int c;
         while ((c = stringReader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (c == CHAR_CLOSING_SQUARE_BRACKET)
-                {
+                if (c == CHAR_CLOSING_SQUARE_BRACKET) {
                     return jsonArray;
                 } else {
                     stringReader.reset();
@@ -217,12 +212,10 @@ public class ImplementedJsonParser implements StreamingJsonParser {
         int c;
         while ((c = stringReader.read()) != END_READ_STREAM) {
             if (!Character.isWhitespace(c)) {
-                if (c == CHAR_COMMA)
-                {
+                if (c == CHAR_COMMA) {
                     jsonArray.add(getJSONValue());
                 } else {
-                    if (c == CHAR_CLOSING_SQUARE_BRACKET)
-                    {
+                    if (c == CHAR_CLOSING_SQUARE_BRACKET) {
                         return;
                     } else {
                         throw new IllegalArgumentException("error! ImplementedJsonParser.doValue");
@@ -243,8 +236,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
             if (!Character.isWhitespace(c)) {
                 switch (currentAction) {
                     case BEGIN:
-                        if (c == CHAR_CLOSING_CURLY_BRACKET)
-                        {
+                        if (c == CHAR_CLOSING_CURLY_BRACKET) {
                             return jsonObject;
                         } else {
                             if (c == CHAR_DOUBLE_QUOTE) {
@@ -255,8 +247,7 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                         }
                         break;
                     case STRING:
-                        if (c == CHAR_COLON)
-                        {
+                        if (c == CHAR_COLON) {
                             tmpElement = getJSONValue();
                             currentAction = EnumSeparator.VALUE;
                         } else {
@@ -264,14 +255,12 @@ public class ImplementedJsonParser implements StreamingJsonParser {
                         }
                         break;
                     case VALUE:
-                        if (c == CHAR_COMMA)
-                        {
+                        if (c == CHAR_COMMA) {
                             jsonObject.add(tmpString, tmpElement);
                             tmpString = getJSONString(-1).getAsString();
                             currentAction = EnumSeparator.STRING;
                         } else {
-                            if (c == CHAR_CLOSING_CURLY_BRACKET)
-                            {
+                            if (c == CHAR_CLOSING_CURLY_BRACKET) {
                                 jsonObject.add(tmpString, tmpElement);
                                 return jsonObject;
                             } else {

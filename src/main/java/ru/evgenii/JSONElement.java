@@ -3,7 +3,7 @@ package ru.evgenii;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class JSONElement {
+public abstract class JSONElement {
 
     public JSONElement() {
     }
@@ -46,10 +46,6 @@ public class JSONElement {
     }
 
     public String getAsString() {
-        throw new UnsupportedOperationException(getClass().getSimpleName());
-    }
-
-    public Number getAsNumber() {
         throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 

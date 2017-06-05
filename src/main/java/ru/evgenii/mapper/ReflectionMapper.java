@@ -37,9 +37,11 @@ public class ReflectionMapper {
         typeAdapterList.add(new LongTypeAdapter());
         typeAdapterList.add(new MapTypeAdapter());
     }
+
     public static String fieldNameOf(String nothingToDo) {
         return sbFieldNameOf(nothingToDo).toString();
     }
+
     public static String getterNameOf(String idempotent) {
         StringBuffer sb = sbFieldNameOf(idempotent);
         Character ch = sb.charAt(0);
@@ -48,6 +50,7 @@ public class ReflectionMapper {
         }
         return sb.toString();
     }
+
     private static StringBuffer sbFieldNameOf(String nothingToDo) {
         Pattern p = Pattern.compile("(_[a-z])");
         Matcher m = p.matcher(nothingToDo);
@@ -59,6 +62,7 @@ public class ReflectionMapper {
         deleteUnderscore(sb);
         return sb;
     }
+
     private static void deleteUnderscore(StringBuffer builder) {
         String from = "_";
         int index = builder.indexOf(from);
@@ -82,9 +86,10 @@ public class ReflectionMapper {
             }
             return objT;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
-            throw new IllegalArgumentException("error. ReflectionMapper.createObject \n"+ e.getMessage());
+            throw new IllegalArgumentException("error. ReflectionMapper.createObject \n" + e.getMessage());
         }
     }
+
     private Constructor checkAnnotationConstructor(Class argClass, Class<? extends Annotation> argAnnotationClass) {
         Constructor[] constructors = argClass.getDeclaredConstructors();
         for (Constructor constructor : constructors) {
@@ -94,6 +99,7 @@ public class ReflectionMapper {
         }
         return null;
     }
+
     private Object[] getArrayObjectForConstruct(Constructor checkAnnotationConstructor, JSONElement je) {
         if (!je.isJsonObject()) {
             throw new IllegalArgumentException("error. ReflectionMapper.getArrayObjectForConstruct \nInput object must be JSONObject.");
@@ -113,7 +119,7 @@ public class ReflectionMapper {
                     if (!required) {
                         objects[i] = null;
                     } else {
-                        throw new IllegalArgumentException("error. parameter "+ parameter.getName() +" is required");
+                        throw new IllegalArgumentException("error. parameter " + parameter.getName() + " is required");
                     }
                 } else {
                     TypeAdapter typeAdapter = factoryTypeAdapter(parameterType);
@@ -125,15 +131,17 @@ public class ReflectionMapper {
 
                 }
             } else {
-                throw new IllegalArgumentException("error. requested annotation is not found");}
-                i++;
+                throw new IllegalArgumentException("error. requested annotation is not found");
+            }
+            i++;
         }
         if (jsonObject.count() > parameters.length) {
             throw new IllegalArgumentException("error. there is no such parameter");
         }
         return objects;
     }
-    private <T> void mappingJSON(JSONElement je,  T obj) throws NoSuchFieldException, IllegalAccessException {
+
+    private <T> void mappingJSON(JSONElement je, T obj) throws NoSuchFieldException, IllegalAccessException {
         if (je.isJsonObject()) {
             JSONObject jsonObject = je.getAsJsonObject();
             for (Map.Entry<String, JSONElement> next : jsonObject) {
@@ -156,6 +164,7 @@ public class ReflectionMapper {
             }
         }
     }
+
     private TypeAdapter factoryTypeAdapter(Class<?> tClass) {
         for (TypeAdapter typeAdapter : typeAdapterList) {
             if (typeAdapter.isEqualClass(tClass)) {
@@ -165,4 +174,3 @@ public class ReflectionMapper {
         return null;
     }
 }
-

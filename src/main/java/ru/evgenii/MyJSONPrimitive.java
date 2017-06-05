@@ -2,6 +2,17 @@ package ru.evgenii;
 
 class MyJSONPrimitive extends JSONPrimitive {
     MyJSONPrimitive(String test) {
-        value = test;
+        super(test);
+    }
+    MyJSONPrimitive(Number test) {
+        super(test);
+    }
+    MyJSONPrimitive(Boolean test) {
+        super(test);
+    }
+
+
+    Object getAsObject() {
+        return value;
     }
 }

@@ -46,4 +46,8 @@ public class JSONObject extends JSONElement implements Iterable<Map.Entry<String
         return (o == this) || (o instanceof JSONObject
                 && ((JSONObject) o).members.equals(members));
     }
+
+    public Iterable<Map.Entry<String, JSONElement>> entrySet() {
+        return members.entrySet();
+    }
 }
