@@ -1,8 +1,8 @@
-package ru.evgenii.mapper.adapters.types;
+package ru.evgenii.mapper.reflection.types;
 
 import com.google.gson.internal.LinkedTreeMap;
 import java.util.Map;
-import ru.evgenii.JSONElement;
+import ru.evgenii.parser.JSONElement;
 
 public class MapTypeAdapter implements TypeAdapter {
     @Override

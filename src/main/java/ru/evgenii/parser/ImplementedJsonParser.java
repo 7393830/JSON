@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import org.apache.commons.lang3.math.NumberUtils;
+import ru.evgenii.parser.EnumSeparator;
 
 import static java.lang.Character.isDigit;
 

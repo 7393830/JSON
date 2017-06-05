@@ -1,6 +1,6 @@
-package ru.evgenii.mapper.adapters.types;
+package ru.evgenii.mapper.reflection.types;
 
-import ru.evgenii.JSONElement;
+import ru.evgenii.parser.JSONElement;
 
 public class StringTypeAdapter implements TypeAdapter {
     @Override

@@ -1,7 +1,7 @@
-package ru.evgenii.mapper.adapters.types;
+package ru.evgenii.mapper.reflection.types;
 
 import java.math.BigInteger;
-import ru.evgenii.JSONElement;
+import ru.evgenii.parser.JSONElement;
 
 public class BigIntegerTypeAdapter implements TypeAdapter {
     @Override

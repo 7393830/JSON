@@ -1,6 +1,6 @@
-package ru.evgenii.mapper.adapters.types;
+package ru.evgenii.mapper.reflection.types;
 import java.math.BigDecimal;
-import ru.evgenii.JSONElement;
+import ru.evgenii.parser.JSONElement;
 
 public class BigDecimalTypeAdapter implements TypeAdapter {
     @Override
